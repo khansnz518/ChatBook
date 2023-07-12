@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1009844142953",
+    "project_id": "rn-proj-a3e6c",
+    "storage_bucket": "rn-proj-a3e6c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1009844142953:android:72f5636399c1de62af73f8",
+        "android_client_info": {
+          "package_name": "com.chatbook"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1009844142953-iaihjmrmprm44fid6blmtsmrviilljl2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.chatbook",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "1009844142953-7b699u676hcfdkkt497o8dd31h22i4qs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9jrsbFRlvMfUOVIZB1GI2cdVkrkdn6Ak"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1009844142953-7b699u676hcfdkkt497o8dd31h22i4qs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
