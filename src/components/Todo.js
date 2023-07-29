@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   TextInput,
@@ -20,16 +20,16 @@ const Todo = () => {
     const subscriber = firestore()
       .collection('task')
       .onSnapshot(documentSnapshot => {
-        let tempArray = []
-       documentSnapshot._docs.map((item)=>{
+        let tempArray = [];
+        documentSnapshot._docs.map(item => {
           const newtask = {
-              id: item._data.id,
-              title : item._data.title,
-          }
-          tempArray?.push(newtask)
+            id: item._data.id,
+            title: item._data.title,
+          };
+          tempArray?.push(newtask);
           console.log(item);
-      })
-      setTasks([...tempArray]);
+        });
+        setTasks([...tempArray]);
 
         console.log('User data: ', documentSnapshot);
       });
@@ -41,75 +41,74 @@ const Todo = () => {
   const addTask = () => {
     if (task.trim() === '') return;
     firestore()
-    .collection('task').doc()
-    .set({
-      id:Date.now().toString(),
-      title: task,
-    })
-    .then(() => {
-      console.log('User added!');
-      const newTask = {
+      .collection('task')
+      .doc()
+      .set({
         id: Date.now().toString(),
         title: task,
-      };
-      setTasks([...tasks, newTask]);
-      setTask('');
-    });
-    
+      })
+      .then(() => {
+        console.log('User added!');
+        const newTask = {
+          id: Date.now().toString(),
+          title: task,
+        };
+        setTasks([...tasks, newTask]);
+        setTask('');
+      });
   };
 
-  const removeTask = (id) => {
+  const removeTask = id => {
     firestore()
-    .collection('task')
-    .where('id', '==', id)
-    .get()
-    .then(querySnapshot => {
-      querySnapshot.docs[0].ref.delete();
-      const updatednotes = tasks.filter(task => task.id !== id);
-      setTasks(updatednotes)
-  })
-    .catch(e => e);
+      .collection('task')
+      .where('id', '==', id)
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.docs[0].ref.delete();
+        const updatednotes = tasks.filter(task => task.id !== id);
+        setTasks(updatednotes);
+      })
+      .catch(e => e);
   };
 
   const startEditingTask = (id, title) => {
     setEditingTaskId(id);
     setEditedTaskTitle(title);
-    console.log('id==>',id)
+    console.log('id==>', id);
   };
 
   const finishEditingTask = () => {
     if (editingTaskId && editedTaskTitle.trim() !== '') {
       firestore()
-      .collection('task')
-      .where('id', '==', editingTaskId)
-      .get().then(querySnapshot=>{
-
-        querySnapshot.docs[0].ref.update({ 'title' : editedTaskTitle})
-        console.log('User updated!');
-            const updatedTasks = tasks.map((task) =>
-              task.id === editingTaskId ? { ...task, title: editedTaskTitle } : task
-            );
-            setTasks(updatedTasks);
-            setEditingTaskId(null);
-            setEditedTaskTitle('');
-      }
-      )
-        
+        .collection('task')
+        .where('id', '==', editingTaskId)
+        .get()
+        .then(querySnapshot => {
+          querySnapshot.docs[0].ref.update({title: editedTaskTitle});
+          console.log('User updated!');
+          const updatedTasks = tasks.map(task =>
+            task.id === editingTaskId
+              ? {...task, title: editedTaskTitle}
+              : task,
+          );
+          setTasks(updatedTasks);
+          setEditingTaskId(null);
+          setEditedTaskTitle('');
+        });
     }
-    };
+  };
 
-  const renderTask = ({ item }) => (
+  const renderTask = ({item}) => (
     <View
       style={[
         styles.taskContainer,
         item.completed ? styles.completedTask : null,
-      ]}
-    >
+      ]}>
       {editingTaskId === item.id ? (
         <TextInput
           style={styles.editInput}
           value={editedTaskTitle}
-          onChangeText={(text) => setEditedTaskTitle(text)}
+          onChangeText={text => setEditedTaskTitle(text)}
           onBlur={finishEditingTask}
           autoFocus
         />
@@ -118,8 +117,7 @@ const Todo = () => {
           <Text style={styles.taskTitle}>{item.title}</Text>
           <TouchableOpacity
             style={styles.editButton}
-            onPress={() => startEditingTask(item.id)}
-          >
+            onPress={() => startEditingTask(item.id)}>
             <Text style={styles.editButtonText}>Edit</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => removeTask(item.id)}>
@@ -137,14 +135,14 @@ const Todo = () => {
           style={styles.input}
           placeholder="Enter task"
           value={task}
-          onChangeText={(text) => setTask(text)}
+          onChangeText={text => setTask(text)}
         />
         <Button title="Add" onPress={addTask} />
       </View>
       <FlatList
         data={tasks}
         renderItem={renderTask}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         contentContainerStyle={styles.taskList}
       />
     </SafeAreaView>

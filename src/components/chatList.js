@@ -6,7 +6,7 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {useSelector} from 'react-redux';
 import {useNavigation} from '@react-navigation/native';
 
@@ -16,40 +16,50 @@ const ChatList = () => {
   const otherUserDetails = useSelector(
     state => state?.chatlist?.otherUserDetails,
   );
+  // const CHAT_DATA = chatList.sort(({a,b})=>(b.lastSent - a.lastSent))
 
-  const renderTask = ({item}) => (
-    <TouchableOpacity
-      style={styles.list}
-      onPress={() => {
-        navigation.navigate('Chat', {
-          chatsId: item.chatId,
-          otherId: otherUserDetails.uid,
-          myId: item.uid,
-        });
-      }}>
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'flex-start',
-          alignItems: 'center',
-          width: '70%',
+  const renderTask = ({item}) => {
+    const otherUser = otherUserDetails.find(
+      user => item.participants.includes(user.uid)
+    );
+    return (
+      <TouchableOpacity
+        style={styles.list}
+        onPress={() => {
+          navigation.navigate('Chat', {
+            chatsId: item.chatId,
+            otherId: otherUser?.uid,
+            myId: item.uid,
+          });
         }}>
-        <View style={styles.imageContainer}>
-          <Image
-            source={{uri: otherUserDetails.photoURL}}
-            style={{height: '100%', width: '100%', borderRadius: 999}}
-          />
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'flex-start',
+            alignItems: 'center',
+            width: '70%',
+          }}>
+          <View style={styles.imageContainer}>
+            <Image
+              source={{uri: otherUser?.photoURL}}
+              style={{height: '100%', width: '100%', borderRadius: 999}}
+            />
+          </View>
+          <View style={{marginLeft: 8}}>
+            <Text style={{color: '#000000', fontSize: 16}}>
+              {otherUser?.displayName}
+            </Text>
+            <Text style={{color: '#000000'}} numberOfLines={1}>
+              {item.lastMessage}
+            </Text>
+          </View>
         </View>
-        <View style={{marginLeft: 8}}>
-          <Text style={{color:'#000000' ,fontSize:16}}>{otherUserDetails.displayName}</Text>
-          <Text style={{color:'#000000' }} numberOfLines={1}>{item.lastMessage}</Text>
-        </View>
-      </View>
-      <View style={{justifyContent:"center"}}>
-        <Text>{item.lastSent}</Text>
-      </View>
-    </TouchableOpacity>
-  );
+        {/* <View style={{}}>
+          <Text>{item.lastSent}</Text>
+        </View> */}
+      </TouchableOpacity>
+    );
+  };
   return (
     <>
       <View style={styles.container}>
@@ -62,9 +72,11 @@ const ChatList = () => {
         keyExtractor={item => String(item.chatId)}
         contentContainerStyle={styles.taskList}
       />
-      <TouchableOpacity onPress={() => navigation.navigate('Users')} style={styles.fab}>
-          <Text style={styles.fabIcon}>+</Text>
-        </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => navigation.navigate('Users')}
+        style={styles.fab}>
+        <Text style={styles.fabIcon}>+</Text>
+      </TouchableOpacity>
     </>
   );
 };
@@ -101,20 +113,20 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     // backgroundColor: '#694fad',
   },
-  fab: { 
-    position: 'absolute', 
-    width: 56, 
-    height: 56, 
-    alignItems: 'center', 
-    justifyContent: 'center', 
-    right: 20, 
-    bottom: 20, 
-    backgroundColor: '#694fad', 
-    borderRadius: 30, 
-    elevation: 8 
-    }, 
-    fabIcon: { 
-      fontSize: 40, 
-      color: 'white' 
-    }
+  fab: {
+    position: 'absolute',
+    width: 56,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+    right: 20,
+    bottom: 20,
+    backgroundColor: '#694fad',
+    borderRadius: 30,
+    elevation: 8,
+  },
+  fabIcon: {
+    fontSize: 40,
+    color: 'white',
+  },
 });

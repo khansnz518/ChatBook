@@ -1,5 +1,5 @@
-import {View, Text} from 'react-native';
-import React, {useEffect} from 'react';
+import {View} from 'react-native';
+import React from 'react';
 import ChatList from '../components/chatList';
 import firestore, {firebase} from '@react-native-firebase/firestore';
 import {ChatListActions} from '../store/chat/chatListSlice';
@@ -8,61 +8,59 @@ import {useDispatch, useSelector} from 'react-redux';
 const ChatScreen = () => {
   const dispatch = useDispatch();
   const userUid = useSelector(state => state.auth.userDetails.uid);
+   
+  firestore()
+  .collection('chats')
+  .where('participants', 'array-contains', userUid)
+  .onSnapshot(async querySnapshot => {
+    console.log('querySnapshot', querySnapshot._docs)
 
-  // useEffect(() => {
-    firestore()
-      .collection('chats')
-      // .where('participants', 'array-contains', userUid)
-      .get()
-      .then(e=>e._docs.map((item)=>{
-        console.log('dtata=>',item)
-      })).catch(e=>e)
-      // .onSnapshot(querySnapshot => {
-      //   let tempArray = [];
-      //   console.log('querySnapshot',querySnapshot?._docs);
-      //   querySnapshot._docs.map(item => {
-      //     // console.log('querySnapshot123=>', item);
+    const fetchUserDetailsPromises = querySnapshot.docs.map(async item => {
+      const chatList = {
+        chatId: item.data().chatId,
+        isOnline: item.data().isOnline,
+        lastMessage: item.data().lastMessage,
+        newMessages: item.data().newMessages,
+        participants: item.data().participants,
+        timestamp: item.data().timestamp,
+        // lastSent:item.data().lastSent,
+        uid: userUid,
+      };
 
-      //     const chatList = {
-      //       chatId: item._data.chatId,
-      //       isOnline: item._data.isOnline,
-      //       lastMessage: item._data.lastMessage,
-      //       newMessages: item._data.newMessages,
-      //       participants: item._data.participants,
-      //       timestamp: item._data.timestamp,
-      //       uid: userUid,
-      //     };
-      //     const filterotherUser = item._data.participants.filter(
-      //       item => item !== userUid,
-      //     )[0];
-      //     firebase
-      //       .firestore()
-      //       .collection('users')
-      //       .doc(filterotherUser)
-      //       .onSnapshot(querySnapshot => {
-      //         const otherUserDetails = {
-      //           displayName: querySnapshot._data.displayName,
-      //           photoURL: querySnapshot._data.photoURL,
-      //           uid: querySnapshot._data.uid,
-      //         };
-      //         dispatch(
-      //           ChatListActions.otherUserDetails({
-      //             otherUserDetails: otherUserDetails,
-      //           }),
-      //         );
-      //       });
-      //     tempArray?.push(chatList);
-      //   });
-      //   dispatch(
-      //     ChatListActions.chatList({
-      //       chatList: tempArray,
-      //     }),
-      //   );
-      // });
+      const filterOtherUser = item.data().participants.filter(
+        item => item !== userUid
+      )[0];
 
-    // Stop listening for updates when no longer required
-    // return () => subscriber();
-  // }, []);
+      const userSnapshot = await firebase
+        .firestore()
+        .collection('users')
+        .doc(filterOtherUser)
+        .get();
+
+      const otherUserDetails = {
+        displayName: userSnapshot.data().displayName,
+        photoURL: userSnapshot.data().photoURL,
+        uid: userSnapshot.data().uid,
+      };
+
+      return {
+        chatList,
+        otherUserDetails,
+      };
+    });
+
+    const results = await Promise.all(fetchUserDetailsPromises);
+
+    const chatListArray = results.map(result => result.chatList);
+    const otherUserDetailsArray = results.map(result => result.otherUserDetails);
+
+    console.log('chatListArray', chatListArray);
+    console.log('otherUserDetailsArray', otherUserDetailsArray);
+
+    dispatch(ChatListActions.chatList({ chatList: chatListArray }));
+    dispatch(ChatListActions.otherUserDetails({ otherUserDetails: otherUserDetailsArray }));
+  });
+
   return (
     <View style={{flex: 1}}>
       <ChatList />

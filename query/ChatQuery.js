@@ -1,4 +1,5 @@
 import {firebase} from '@react-native-firebase/firestore';
+import { createAsyncThunk } from '@reduxjs/toolkit';
 
 export const chatListener = (ourId, handler, isUserChat) => {
   return firebase
@@ -29,3 +30,4 @@ export const getNewMessagesForChat = (chatId, minLastSent) => {
     .where('createdAt', '>=', new Date(minLastSent))
     .get();
 };
+

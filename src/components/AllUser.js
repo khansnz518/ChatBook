@@ -17,46 +17,47 @@ const AllUser = ({navigation}) => {
   const chatList = useSelector(state => state?.chatlist.chatList);
   const userUid = useSelector(state => state.auth.userDetails.uid);
 
-
+console.log('chatList1',chatList);
   useEffect(() => {
-    // const subscriber = firestore()
-    //   .collection('users')
-    //   .onSnapshot(documentSnapshot => {
-    //     let tempArray = [];
-    //     documentSnapshot._docs.map(item => {
-    //       const newUser = {
-    //         uid: item._data.uid,
-    //         displayName: item._data.displayName,
-    //         photoURL: item._data.photoURL,
-    //       };
-    //       tempArray?.push(newUser);
-    //     });
-    //     setUsers([...tempArray]);
-    //   });
+    const subscriber = firestore()
+      .collection('users')
+      .onSnapshot(documentSnapshot => {
+        let tempArray = [];
+        documentSnapshot._docs.map(item => {
+          if (item._data.uid !== userUid) { // Exclude your own user UID
+            const newUser = {
+              uid: item._data.uid,
+              displayName: item._data.displayName,
+              photoURL: item._data.photoURL,
+            };
+            tempArray?.push(newUser);
+          }
+        });
+        setUsers([...tempArray]);
+      });
 
-    // // Stop listening for updates when no longer required
-    // return () => subscriber();
+    // Stop listening for updates when no longer required
+    return () => subscriber();
   }, []);
 
-  const createChat = async (otherId) => {
-    const containsParticipant = chatList.find(item => item.participants.includes(otherId));
-
-    if (containsParticipant) {
-        // Do something if the participant is found
-        const chatId = containsParticipant.chatId
-        console.log(`The participants array contains ${otherId}.`,chatId);
-        // navigation.navigate('Chat', {
-        //     chatsId: chatId,
-        //     otherId: otherId,
-        //     myId: userUid,
-        // });
-    } else {
-      console.log(`The participants array does not contain ${otherId}.`);
-      // Do something if the participant is not found
-    }
+  const createChat = (otherUid) => {
+    const chat = chatList.find(item => {
+      const participants = item.participants;
+      return participants.includes(userUid) && participants.includes(otherUid);
+    });
+  console.log('chat,',chat);
+    const chatId = chat ? chat.chatId : undefined;
+  
+    navigation.navigate('Chat', {
+      otherId: otherUid,
+      myId: userUid,
+      chatsId: chatId,
+    });
   };
 
-  const renderTask = ({item}) => (
+  const renderTask = ({item}) => {
+    console.log('item1',item)
+    return (
     <TouchableOpacity style={styles.list} onPress={()=>createChat(item.uid)}>
       <View
         style={{
@@ -78,7 +79,8 @@ const AllUser = ({navigation}) => {
         </View>
       </View>
     </TouchableOpacity>
-  );
+    );
+}
   return (
     <SafeAreaView style={{flex: 1}}>
       <StatusBar animated={true} backgroundColor="#694fad" />

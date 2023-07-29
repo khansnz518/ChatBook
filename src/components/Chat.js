@@ -55,6 +55,7 @@ const Chat = ({route, navigation}) => {
         .then(d => {
           console.log('d.id==>', d.id);
           setChatId(d.id);
+          chatRef.doc(d.id).update({chatId:d.id})
           chatRef.doc(d.id).collection('allMessage').add(mymsg);
         });
     }
@@ -166,7 +167,7 @@ const Chat = ({route, navigation}) => {
           onSend(messages);
         }}
         user={{
-          _id: 'YSttEJJ5m9RKaLrJiPyWcJU1PDL2ss',
+          _id: myId,
         }}
         textInputProps={{
           autoCorrect: true,

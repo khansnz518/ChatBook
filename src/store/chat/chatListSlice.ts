@@ -2,7 +2,7 @@ import {createSlice} from '@reduxjs/toolkit';
 
 const ChatListSlice = createSlice({
   name: 'chatlist',
-  initialState: {chatList:[],otherUserDetails:{}},
+  initialState: {chatList:[],otherUserDetails:[]},
   reducers: {
     chatList(state, action) {
       state.chatList = action.payload.chatList;
